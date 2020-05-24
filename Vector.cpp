@@ -6,9 +6,8 @@ Author: Dan Zilberstein
 Students: eli iluz 311201354
 		& avishay farkash 205918790
 */
-#include<iostream>
-#include <string>
 #include"vector.h"
+#pragma warning(disable: 4996)
 
 using namespace std;
 
@@ -43,7 +42,7 @@ Vector::Vector(Vector&& v1) :capacity(v1.capacity), size(v1.size), data(v1.data)
 	v1.capacity = 0;
 }
 
-int Vector:: getCapacity()const {
+int Vector::getCapacity()const {
 	return capacity;
 }
 
@@ -57,7 +56,7 @@ Vector& Vector:: operator = (const Vector& v1) {
 	this->capacity = v1.capacity;
 	this->size = v1.size;
 	if (data != v1.data) {
-		delete [] data;
+		delete[] data;
 		data = new int[v1.capacity];
 		for (int i = 0; i < v1.size; i++)
 			this->data[i] = v1.data[i];
@@ -75,7 +74,7 @@ Vector& Vector:: operator = (Vector&& v1) {
 	return *this;
 }
 
-ostream& operator << ( ostream& out, Vector& v1) {
+ostream& operator << (ostream& out, Vector& v1) {
 	out << "capacity: " << v1.capacity << " size: " << v1.size << " content: ";
 	for (int i = 0; i < v1.size; i++) {
 		out << v1[i] << " ";
@@ -85,18 +84,30 @@ ostream& operator << ( ostream& out, Vector& v1) {
 
 istream& operator>>(istream& in, Vector& v1)
 {
+	int var, size;
+
 	cout << "Enter vector size(maximum - 9):";
-	in >> v1.size;
+	in >> size;
 
 	if (v1.size > v1.capacity)
 		throw "ERROR: the size is out of range.";
-	
-	v1.data = new int[v1.size];
 
-	cout << "Enter " << v1.size << " variabels:" << endl;
+	v1.data = new int[v1.capacity];
 
-	for (int i = 0; i < v1.size; i++)
-		in >> v1[i];
+	cout << "Enter " << size << " variabels:" << endl;
+
+	try 
+	{
+		for (int i = 0; i < size; i++)
+		{
+			in >> var;
+			v1.insert(var);
+		}
+	}
+	catch (const char*)
+	{
+		throw;
+	}
 }
 
 
@@ -134,20 +145,26 @@ int& Vector::operator * (const Vector& v2) {
 
 Vector Vector:: operator + (const Vector& v2) {
 	Vector v3(this->capacity + v2.capacity, this->size + v2.size, new int[this->capacity + v2.capacity]);
-	
 
-	for (int i = 0; i < this->size; i++)
-		v3.data[i] = this->data[i];
-	for (int j = this->size; j < v3.size; j++)
-		v3[j] = v2.data[j - this->size];
+	try
+	{
+		for (int i = 0; i < this->size; i++)
+			v3.insert(this->data[i]);
+		for (int i = 0; i < v2.size; i++)
+			v3.insert(v2.data[i]);
+	}
+	catch (const char*)
+	{
+		throw;
+	}
 
 	return v3;
 }
 
 void Vector::clear() {
-	for (int i = 0; i < this->size; i++) 
+	for (int i = 0; i < this->size; i++)
 		this->data[i] = 0;
-	
+
 	this->size = 0;
 }
 
@@ -157,11 +174,18 @@ void Vector::delLast() {
 	}
 	else
 		throw "ERROR: vector is empty: size = 0. ";
-		
+
 }
 void Vector::insert(int val) {
-	if (this->size !=this-> capacity)
+	if (this->size <= this->capacity)
 		this->data[size++] = val;
 	else
-		throw "ERROR: the vector is full: capacity = " + to_string(capacity);
+	{
+		char* str = new char[40];
+		stringstream sstr;
+		sstr << "ERROR: the vector is full: capacity = ";
+		sstr << capacity;
+		sstr.getline(str, 40);
+		throw str;
+	}
 }

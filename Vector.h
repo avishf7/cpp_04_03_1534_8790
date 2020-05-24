@@ -12,7 +12,7 @@ Students: eli iluz 311201354
 
 #include<iostream>
 #include<cstring>
-
+#include<sstream>
 
 class Vector {
 private:
